@@ -2,109 +2,9 @@ import argparse
 
 from tabulate import tabulate
 
-from .conversions import base_converter
+from .conversions import base_converter, twos_compl, unsigned_to_signed
 
 
-def b2h():
-  parser = argparse.ArgumentParser(
-    prog='b2h', 
-    description='Binary to Hex Converter'
-  )
-  parser.add_argument(
-    'values', 
-    help='binary value(s) to be converted separated by space', 
-    nargs='+',
-    action='store',
-  )
-  parser.add_argument(
-    '-n',
-    help='fixed number of digits in output',
-    action='store',
-    default=''
-  )
-  args = parser.parse_args()
-  
-  for value in args.values:
-      converted = base_converter(value, ibase=2, obase=16, n=args.n)
-      print(converted)
-      
-      
-      
-def h2b():
-  parser = argparse.ArgumentParser(
-    prog='h2b', 
-    description='Hex to Binary Converter'
-  )
-  parser.add_argument(
-    'values', 
-    help='hex value(s) to be converted separated by space', 
-    nargs='+',
-    action='store',
-  )
-  parser.add_argument(
-    '-n',
-    help='fixed number of digits in output',
-    action='store',
-    default=''
-  )
-  args = parser.parse_args()
-  
-  for value in args.values:
-    converted = base_converter(value, ibase=16, obase=2, n=args.n)
-    print(converted)
-    
-    
-    
-def b2d():
-  parser = argparse.ArgumentParser(
-    prog='b2d', 
-    description='Binary to Decimal Converter'
-  )
-  parser.add_argument(
-    'values', 
-    help='binary value(s) to be converted separated by space', 
-    nargs='+',
-    action='store',
-  )
-  parser.add_argument(
-    '-n',
-    help='fixed number of digits in output',
-    action='store',
-    default=''
-  )
-  args = parser.parse_args()
-  
-  for value in args.values:
-    converted = base_converter(value, ibase=2, obase=10, n=args.n)
-    print(converted)
-    
-    
-    
-def d2b():
-  parser = argparse.ArgumentParser(
-    prog='d2b', 
-    description='Decimal to Binary Converter'
-  )
-  parser.add_argument(
-    'values', 
-    help='decimal value(s) to be converted separated by space', 
-    nargs='+',
-    action='store',
-  )
-  parser.add_argument(
-    '-n',
-    help='fixed number of digits in output',
-    action='store',
-    default=''
-  )
-  args = parser.parse_args()
-  
-  for value in args.values:
-    converted = base_converter(value, ibase=10, obase=2, n=args.n)
-    print(converted)
-    
-    
-    
 def bconv():
   parser = argparse.ArgumentParser(
     prog='bconv', 
@@ -120,17 +20,21 @@ def bconv():
     '-n',
     help='minimum number of digits in output',
     action='store',
-    default=''
+    default=None,
+    type=int,
   )
   args = parser.parse_args()
   
   for value in args.values:
-    hex_value = base_converter(value, ibase=2, obase=16, n=args.n).upper()
-    dec_value = base_converter(value, ibase=2, obase=10, n=args.n)
+    n_bits = args.n if args.n else len(value)
+    hex_value = base_converter(value, ibase=2, obase=16).upper()
+    uint_value = base_converter(value, ibase=2, obase=10)
+    sint_value = unsigned_to_signed(int(uint_value), n_bits=n_bits)
     table = [
-      ['BIN', value, len(value)],
-      ['HEX', hex_value, len(hex_value)],
-      ['DEC', dec_value, len(dec_value)]
+      ['BIN', value + ' ({})'.format(len(value))],
+      ['HEX', hex_value],
+      ['UNS', uint_value],
+      ['SIG', sint_value],
     ]
     print(tabulate(table, tablefmt='rounded_grid'))
     
@@ -151,17 +55,21 @@ def hconv():
     '-n',
     help='minimum number of digits in output',
     action='store',
-    default=''
+    default=None,
+    type=int,
   )
   args = parser.parse_args()
   
   for value in args.values:
-    bin_value = base_converter(value, ibase=16, obase=2, n=args.n)
-    dec_value = base_converter(value, ibase=16, obase=10, n=args.n)
+    bin_value = base_converter(value, ibase=16, obase=2, n_bits=args.n)
+    n_bits = args.n if args.n else len(bin_value)
+    uint_value = base_converter(value, ibase=16, obase=10)
+    sint_value = unsigned_to_signed(int(uint_value), n_bits=n_bits)
     table = [
-      ['HEX', value.upper().replace('X', 'x'), len(value)],
-      ['BIN', bin_value, len(bin_value)],
-      ['DEC', dec_value, len(dec_value)]
+      ['HEX', value.upper().replace('X', 'x')],
+      ['BIN', bin_value],
+      ['UNS', uint_value],
+      ['SIG', sint_value],
     ]
     print(tabulate(table, tablefmt='rounded_grid'))
     
@@ -182,13 +90,14 @@ def dconv():
     '-n',
     help='minimum number of digits in output',
     action='store',
-    default=''
+    default=None,
+    type=int,
   )
   args = parser.parse_args()
   
   for value in args.values:
-    bin_value = base_converter(value, ibase=10, obase=2, n=args.n)
-    hex_value = base_converter(value, ibase=10, obase=16, n=args.n)
+    bin_value = base_converter(value, ibase=10, obase=2, n_bits=args.n)
+    hex_value = base_converter(value, ibase=10, obase=16, n_bits=args.n)
     table = [
       ['DEC', value, len(value)],
       ['BIN', bin_value, len(bin_value)],
