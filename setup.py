@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
   name='termtools',
-  version='0.0.4',
+  version='0.0.5',
   description='Terminal Tools',
   author='Natanael',
   author_email='mail@natanael.net',

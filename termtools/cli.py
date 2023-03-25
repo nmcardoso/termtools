@@ -67,7 +67,7 @@ def hconv():
     sint_value = unsigned_to_signed(int(uint_value), n_bits=n_bits)
     table = [
       ['HEX', value.upper().replace('X', 'x')],
-      ['BIN', bin_value],
+      ['BIN', bin_value + ' ({})'.format(len(bin_value))],
       ['UNS', uint_value],
       ['SIG', sint_value],
     ]
@@ -99,8 +99,8 @@ def dconv():
     bin_value = base_converter(value, ibase=10, obase=2, n_bits=args.n)
     hex_value = base_converter(value, ibase=10, obase=16, n_bits=args.n)
     table = [
-      ['DEC', value, len(value)],
-      ['BIN', bin_value, len(bin_value)],
-      ['HEX', hex_value.upper(), len(hex_value)]
+      ['DEC', value],
+      ['BIN', bin_value + ' ({})'.format(len(bin_value))],
+      ['HEX', hex_value.upper()]
     ]
     print(tabulate(table, tablefmt='rounded_grid'))
